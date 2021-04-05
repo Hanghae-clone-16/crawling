@@ -3,9 +3,27 @@
 클론코딩 프로젝트를 진행하면서 사이트의 데이터를 크롤링 해와야 하는 과제가 생겼습니다.
 먼저, 프로젝트에서는 java를 사용하지만 이번에는 Python - bs4로 데이터를 크롤링하고, mysql db에 넣어줄 생각입니다.
 
+## import
+
+크롤링을 위한 beautifulsoup4와 requests / python에서 mysql을 사용하기 위한 pymysql을 import 해줍니다.
+
+## version
+
+* python - 3.8
+* mysql - 8.0.23
+* pyMysql - 1.0.2
+* Beautifulsoup4 - 4.9.3
+* Requests - 2.25.1
+
+## 사전 작업
+
+mysql을 설치하고, 기본 설정을 해줍니다. (mysql_secure_installation)
+
+이번 프로젝트에 사용할 database를 만들고, 크롤링을 해왔습니다.
+
 ## 맞닥뜨린 문제
 크롤러를 만드는 것이 아니였기 때문에 조금 쉽게 데이터를 긁어올 수 있었습니다.
-하지만, mysql 세팅에서 잘못된 부분이 있어 에러를 많이 만났네요,
+하지만, mysql 세팅에서 잘못된 부분이 있어 에러를 많이 만났네요
 
 ### utf8mb4
 긁어온 데이터 안에는 이모티콘이 있었습니다.
@@ -13,7 +31,7 @@
 pymysql.err.dataerror: (1366, "incorrect string value: '\\xf0\\x9f\\x91\\xa9\\xf0\\x9f...' for column 'contents' at row 1")
 
 mysql 세팅을 utf8mb4로 바꿔주는 작업이 필요하다고 하여
-find 명령어로 my.cnf 파일을 찾았고 아래와 같은 설정을 해주었습니다.
+find 명령어로 my.cnf 파일을 찾았고 아래와 같은 설정을 해주었습니다.(Windows는 my.ini 파일을 찾아야 한다고 합니다.)
 
 ```bash
 # Default Homebrew MySQL server config
