@@ -12,7 +12,7 @@
 * python - 3.8
 * mysql - 8.0.23
 * pyMysql - 1.0.2
-* Beautifulsoup4 - 4.9.3
+* bs4 - 0.0.1(Beautifulsoup4 - 4.9.3)
 * Requests - 2.25.1
 
 ## 사전 작업
@@ -70,12 +70,35 @@ CREATE TABLE card (
 이로서 이모티콘 관련 이슈는 해결되었네요
 
 ### img 경로 이슈
-이미지 경로를 크롤링 해올 때, html 태그인 <img src> 형태를 긁어온 걸 모르고 있었습니다.
+이미지 경로를 크롤링 해올 때, html 태그인 ``` <img src>``` 형태를 긁어온 걸 모르고 있었습니다.
 .get("src")를 사용해 src에 해당하는 부분만 긁어오고, None인 경우 그냥 긁어오는 방식을 사용했습니다.
 
+### createdAt 이슈
+이번 크롤링의 목적은 테스트 데이터의 양질화를 위한 것이었기 때문에 쿼리에서 VARCHAR로 문자열로 받아온 것을 알고 있었음에도 넘어가려 했으나
+본 코드에서 생성일자는 timestamped 클래스를 상속하여 자동으로 갖고 오게 되는데, 올바르지 않은 값이 들어가게 되면 PUSH, PUT을 할 수 없었습니다.
+
+ex) 2021년 3월 10일
+
+위의 형식을 '2021-3-10'의 형식으로 바꿔줄 필요가 있다고 판단하여 split()과 replace()를 적절히 이용해 해결했고,
+```python
+        all_created_At = all_created_At.text.split("년")[0]+all_created_At.text.split("년")[1].split("월")[0]+all_created_At.text.split("월")[1].split("일")[0]
+        created_At.append(all_created_At.replace(" ", "-"))
+```
+create문에서는 해당 created_at column의 자료형을 VARCHAR가 아닌 date로 선언해주었습니다
+
+### ' 과 "
+날짜가 바뀌어 게시물이 바뀌었는데, 내용에 작은따옴표가 들어가는 게시물이 생겼습니다.
+긁어온 내용을 item에 담고, zip()을 이용하여 처리해주고,
+Insert 문에서는 \"{item[0]}\"의 형식으로 사용했었으나
+```python
+items = [item for item in zip(title,contents,img,created_At,comments_cnt,nickname,like_cnt)]
+```
+작은따옴표를 코드에서 인식하여 어제까진 볼 수 없었던 에러가 나왔습니다.
+내용을 긁어오는 부분에서 replace()를 사용하여 처리해주었습니다.
+```python
+ contents.append(all_contents.replace("\"","\'"))
+```
+
 ## 결과
-내용이 길어 이쁘진 않지만 긁어오기에 성공했네요!
-![image](https://user-images.githubusercontent.com/53491653/113515822-b5fdef00-95b1-11eb-8959-4f455d0c43a7.png)
-
-
-
+db에는 이런식으로 들어가게 됩니다
+![image](https://user-images.githubusercontent.com/53491653/113588073-a8f10680-966a-11eb-9693-e5e25886c69d.png)
