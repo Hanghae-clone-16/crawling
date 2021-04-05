@@ -1,10 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 
-
 # db 접속
 import pymysql
-db = pymysql.connect(host='{ip}', port=3306, user='', passwd='', db='{database name}')
+db = pymysql.connect(host='{ip}', port=3306, user='', passwd='', db='database')
 db.set_charset('utf8mb4')
 cursor = db.cursor()
 
@@ -43,17 +42,17 @@ for card in cards:
     all_contents = card.select_one('div.sc-jhAzac.hvSHGq > a > div > p')
     if all_contents is not None:
         all_contents = all_contents.text
-        contents.append(all_contents)
+        contents.append(all_contents.replace("\"","\'"))
     elif all_contents is None:
         all_contents = ""
         contents.append(all_contents)
 
     all_created_At = card.select_one('div.sc-jhAzac.hvSHGq > div > span:nth-child(1)')
     if all_created_At is not None:
-        all_created_At = all_created_At.text
-        created_At.append(all_created_At)
+        all_created_At = all_created_At.text.split("년")[0]+all_created_At.text.split("년")[1].split("월")[0]+all_created_At.text.split("월")[1].split("일")[0]
+        created_At.append(all_created_At.replace(" ", "-"))
     elif all_created_At is None:
-        all_created_At = ""
+        all_created_At = "2021-01-01"
         created_At.append(all_created_At)
 
     all_comments_cnt = card.select_one('div.sc-jhAzac.hvSHGq > div > span:nth-child(3)')
@@ -87,8 +86,8 @@ CREATE TABLE board (
     title VARCHAR(200) NOT NULL,
     contents VARCHAR(200) NOT NULL,
     img VARCHAR(200),
-    createdAt VARCHAR(200) NOT NULL,
-    comments_cnt varchar(100) NOT NULL,
+    created_at date,
+    comments_cnt varchar(100),
     nickname varchar(100) NOT NULL,
     like_cnt varchar(100)
     )
@@ -113,7 +112,7 @@ CREATE TABLE board (
 ## 생성은 execute로 한다.
 cursor.execute(sql)
 
-i = 1
+i = 100
 # 데이터 저장하기
 for item in items:
     cursor.execute(

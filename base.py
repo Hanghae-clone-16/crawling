@@ -55,10 +55,10 @@ for card in cards:
 
     all_created_At = card.select_one('div.sc-jhAzac.hvSHGq > div > span:nth-child(1)')
     if all_created_At is not None:
-        all_created_At = all_created_At.text
-        created_At.append(all_created_At)
+        all_created_At = all_created_At.text.split("년")[0]+all_created_At.text.split("년")[1].split("월")[0]+all_created_At.text.split("월")[1].split("일")[0]
+        created_At.append(all_created_At.replace(" ","-"))
     elif all_created_At is None:
-        all_created_At = ""
+        all_created_At = "2021-01-01"
         created_At.append(all_created_At)
 
     all_comments_cnt = card.select_one('div.sc-jhAzac.hvSHGq > div > span:nth-child(3)')
